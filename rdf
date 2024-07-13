@@ -1030,6 +1030,50 @@ do_nsdist ()
     rm "$tmpfile"
 }
 
+docu_nssort () { echo "sorts the prefix declarations in files, inserting all at the line of the first found prefix";}
+do_nssort ()
+{
+    local before prefixes after
+    local -a files
+
+    _checkTool grep mktemp wc
+
+    if [ "${2:-}" == "" ]
+    then
+        mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
+    else
+        files=("$@")
+    fi
+
+    tmpfile=$(_getTempFile)
+    for target in "${files[@]}"
+    do
+        if [ -f "$target" ]
+        then
+            # All lines before the first prefix
+            before=$(grep "^@prefix" -r "$target" -B 999999999999 --max-count 1 | head -n -1)
+            # ... the rest of the lines
+            grep "^@prefix" -r "$target" -A 999999999999 --max-count 1 > "$tmpfile"
+            # Extract and remove the prefix lines
+            prefixes=$(grep "^@prefix" -r "$tmpfile")
+            after=$(grep -v "^@prefix" -r "$tmpfile")
+            # Re-create the whole file (with sorted prefixes)
+            {
+                echo "$before"
+                echo "$prefixes" | sort -u | awk '
+NF>1 { # skip the funky first record
+    printf("%s %-8s", $1, $2)
+    $1=$2=""
+    print $0
+}'
+                echo "$after"
+            } > "$tmpfile"
+            mv "$tmpfile" "$target"
+            echo "$target: prefixes sorted"
+        fi
+    done
+}
+
 docu_turtleize() { echo "outputs an RDF file in turtle, using as much as possible prefix declarations"; }
 do_turtleize ()
 {
