@@ -969,7 +969,7 @@ do_nscollect()
         countBefore=0
     fi
 
-    files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
+    mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
     rm -f "$prefixfile"
     for file in "${files[@]}"
     do
@@ -1000,7 +1000,7 @@ do_nsdist ()
 
     if [ "${2:-}" == "" ]
     then
-        files=($(find . -name "*.ttl" | grep -v "$prefixfile"))
+        mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
     else
         files=("$@")
     fi
