@@ -1005,19 +1005,24 @@ do_nsdist ()
         files=("$@")
     fi
 
+    _count_prefixes() {
+        local ttl_file
+        ttl_file="$1"
+
+        grep "@prefix " -r "$ttl_file" 2> /dev/null | wc -l || true
+    }
+
     count=$(wc -l < "$prefixfile")
     tmpfile=$(_getTempFile)
     for target in "${files[@]}"
     do
         if [ -f "$target" ]
         then
-            # shellcheck disable=SC2126
-            before=$(grep "@prefix " < "$target" | wc -l || echo 0)
+            before=$(_count_prefixes "$target")
             grep -v "@prefix " < "$target" > "$tmpfile" || true
             cat $prefixfile > "$target"
             cat "$tmpfile" >> "$target"
-            # shellcheck disable=SC2126
-            after=$(grep "@prefix " < "$target" | wc -l || echo 0)
+            after=$(_count_prefixes "$target")
             result=$((after - before)) || true
             if [ "$result" -ge "0" ]
             then
