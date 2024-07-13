@@ -1013,9 +1013,9 @@ do_nsdist ()
         then
             # shellcheck disable=SC2126
             before=$(grep "@prefix " < "$target" | wc -l || echo 0)
-            grep -v "@prefix " < "$target" >"$tmpfile" || true
-            cat $prefixfile >"$target"
-            cat "$tmpfile" >>"$target"
+            grep -v "@prefix " < "$target" > "$tmpfile" || true
+            cat $prefixfile > "$target"
+            cat "$tmpfile" >> "$target"
             # shellcheck disable=SC2126
             after=$(grep "@prefix " < "$target" | wc -l || echo 0)
             result=$((after - before)) || true
