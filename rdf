@@ -1077,7 +1077,7 @@ do_skolemize ()
     tmpOutput="/tmp/$RANDOM-$(basename "$file")"
     rapper -i guess "$file" 2>/dev/null | sort -u >"$tmpInput" || true
 
-    # in order to have stable uuids with the same file, change seed to md5sum of the file
+    # in order to have stable UUIDs with the same file, change seed to md5sum of the file
     seed="$tmpInput/"
     awk -v domain="$domain" -v seed="$seed" '
         BEGIN{FS=" "; OFS=" "; ORS=""}
