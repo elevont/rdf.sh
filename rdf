@@ -1035,7 +1035,7 @@ do_nsdist ()
     rm "$tmpfile"
 }
 
-docu_nssort () { echo "sorts the prefix declarations in files, inserting all at the line of the first found prefix";}
+docu_nssort () { echo "sorts the prefix declarations in files, re-inserting all at the line of the first found prefix";}
 do_nssort ()
 {
     local before prefixes after
@@ -1045,7 +1045,9 @@ do_nssort ()
 
     if [ "${2:-}" == "" ]
     then
-        mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
+        >&2 echo "Syntax: $this $command <target-turtle-files>"
+        >&2 echo "($(docu_nssort))"
+        exit 1
     else
         files=("$@")
     fi
@@ -1064,13 +1066,21 @@ do_nssort ()
             after=$(grep -v "^@prefix" -r "$tmpfile")
             # Re-create the whole file (with sorted prefixes)
             {
-                echo "$before"
-                echo "$prefixes" | sort -u | awk '
+                if [ -n "$before" ]
+                then
+                    echo "$before"
+                fi
+                # NOTE We need the `LC_COLLATE=C` here wiht sort,
+                # because otherwise sort ignores ':'
+                # (on some platforms, including Debian),
+                # which leads to an undesired result in our case.
+                # see <https://superuser.com/a/226489/364425>
+                echo "$prefixes" | awk '
 NF>1 { # skip the funky first record
     printf("%s %-8s", $1, $2)
     $1=$2=""
     print $0
-}'
+}' | LC_COLLATE=C sort -u
                 echo "$after"
             } > "$tmpfile"
             mv "$tmpfile" "$target"
