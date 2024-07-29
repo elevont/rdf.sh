@@ -1041,7 +1041,7 @@ do_nssort ()
     local before prefixes after
     local -a files
 
-    _checkTool grep mktemp wc
+    _checkTool awk grep mktemp sed wc
 
     if [ "${2:-}" == "" ]
     then
@@ -1058,7 +1058,7 @@ do_nssort ()
         if [ -f "$target" ]
         then
             # All lines before the first prefix
-            before=$(grep "^@prefix" -r "$target" -B 999999999999 --max-count 1 | head -n -1)
+            before=$(sed -n '/^@prefix/q;p' "$target")
             # ... the rest of the lines
             grep "^@prefix" -r "$target" -A 999999999999 --max-count 1 > "$tmpfile"
             # Extract and remove the prefix lines
