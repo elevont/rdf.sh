@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2024 Robin Vobruba <hoijui.quaero@gmail.com>
+#
+# SPDX-License-Identifier: Unlicense
+
+Pygments==2.17.2
+swlexers @ git+https://github.com/gniezen/n3pygments@master
