@@ -1275,13 +1275,13 @@ then
     echo "$this is a multi-tool shell script for doing Semantic Web jobs on the command line."
     echo "Version:  $version"
     echo "Homepage: $home"
-    echo ""
+    echo
     echo "Syntax: $this <command>"
-    echo ""
+    echo
     echo "Available commands are:"
     for cmd in $commandlist
     do
-        echo "  $cmd:" "$(docu_"$cmd")"
+        printf '  %-15s %s\n' "$cmd" "$(docu_"$cmd")"
     done
     exit 1
 fi
