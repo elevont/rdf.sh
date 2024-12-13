@@ -224,6 +224,8 @@ _httpGetNtriples ()
 {
     local url tmpfile cachePath
 
+    _checkTool curl rapper
+
     url=${1:-}
     if [ "$url" == "" ]
     then
