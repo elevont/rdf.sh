@@ -15,6 +15,7 @@ fi
 name="rdf.sh"
 version="0.8.0"
 home="https://github.com/seebi/rdf.sh"
+prefixfile_default="prefixes.ttl"
 
 # basic application environment
 this=$(basename "$0")
@@ -949,7 +950,7 @@ do_split ()
     find "$tmpdir" -type f
 }
 
-docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files";}
+docu_nscollect() { echo "collects prefix declarations of a list of ttl/n3 files (default prefixes file: '$prefixfile_default')";}
 do_nscollect()
 {
     local prefixfile countBefore count
@@ -957,11 +958,24 @@ do_nscollect()
 
     _checkTool cat wc grep sort
 
-    prefixfile="${2:-}"
+    print_help_nscollect() {
+        echo "Syntax: $this $command [prefixes-file]"
+        echo "($(docu_nscollect))"
+    }
 
-    if [ "$prefixfile" == "" ]
+    if [ "${2:-}" == "-h" ] || [ "${2:-}" == "--help" ]
     then
-        prefixfile="prefixes.ttl"
+        print_help_nscollect
+        exit 0
+    fi
+
+    prefixfile="$prefixfile_default"
+
+    if [ -z "${2:-}" ]
+    then
+        mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
+    else
+        files=("$@")
     fi
 
     if [ -f "$prefixfile" ]
@@ -971,14 +985,13 @@ do_nscollect()
         countBefore=0
     fi
 
-    mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
-    rm -f "$prefixfile"
     for file in "${files[@]}"
     do
         grep "@prefix " < "$file" >> "$prefixfile" || true
     done
     sort -u "$prefixfile" > "$prefixfile.new"
     mv "$prefixfile.new" "$prefixfile"
+
     count=$(wc -l < "$prefixfile")
     echo "$count prefixes from ${#files[@]} file(s) collected in $prefixfile ($countBefore before)"
 }
