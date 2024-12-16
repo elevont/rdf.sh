@@ -1004,16 +1004,25 @@ do_nsdist ()
 
     _checkTool grep mktemp wc
 
-    prefixfile="prefixes.ttl"
-    if [ ! -f "$prefixfile" ]
+    prefixfile="$prefixfile_default"
+
+    print_help_nsdist() {
+        echo "Syntax: $this $command <targetfiles>"
+        echo "($(docu_nsdist))"
+    }
+
+    if [ "${2:-}" == "-h" ] || [ "${2:-}" == "--help" ]
     then
-        >&2 echo "Syntax: $this $command <targetfiles>"
-        >&2 echo "($(docu_nsdist))"
+        print_help_nsdist
+        exit 0
+    elif [ ! -f "$prefixfile" ]
+    then
+        >&2 print_help_nsdist
         >&2 echo "I try to use $prefixfile as source, but it is empty."
         exit 1
     fi
 
-    if [ "${2:-}" == "" ]
+    if [ -z "${2:-}" ]
     then
         mapfile -t files < <(find . -name "*.ttl" | grep -v "$prefixfile")
     else
