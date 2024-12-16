@@ -1062,16 +1062,24 @@ do_nsdist ()
 docu_nssort () { echo "sorts the prefix declarations in files, re-inserting all at the line of the first found prefix";}
 do_nssort ()
 {
-    local before prefixes after
+    local before after
     local -a files
 
     _checkTool awk mktemp
 
-    if [ "${2:-}" == "" ]
+    print_help_nssort() {
+        echo "Syntax: $this $command <target-turtle-files>"
+        echo "($(docu_nssort))"
+    }
+
+    if [ -z "${2:-}" ]
     then
-        >&2 echo "Syntax: $this $command <target-turtle-files>"
-        >&2 echo "($(docu_nssort))"
+        >&2 print_help_nssort
         exit 1
+    elif [ "${2:-}" == "-h" ] || [ "${2:-}" == "--help" ]
+    then
+        print_help_nssort
+        exit 0
     else
         files=("$@")
     fi
